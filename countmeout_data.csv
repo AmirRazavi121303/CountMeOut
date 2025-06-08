@@ -1,0 +1,7 @@
+CountMeOut example data,,,,
+Problem,Student steps,Correct?,Error Type,Improvement tip
+4 + 2 * 2 ,Step 1: 2 * 2 = 4. Step 2: 4 + 4 = 16,TRUE,None,None
+5 + 3 * 10,Step 1: 5 + 3 = 8 Step 2: 8 * 10 = 80,FALSE,Order of Operations Error (incorrect use of PEMDAS / BODMAS) in Step 1,First do 3 * 10
+3 + 4 - 5 ,Step 1: 4 - 5 = -1 Step 2: 3 + (-1) = 4,FALSE,Sign misconception (not understanding how negatives work) in Step 2,3 + (-1) is the same as 3 - 1
+2 * 10 * 0,Step 1: 2 * 10 = 20 Step 2: 20 * 0 = 20,FALSE,Zero misconception (not understanding how to multiply / divide with 0) in Step 2,0 * x is always 0
+(5**2) - 2 ,Step 1: 5 - 2 = 3 Step 2: 32 = 9,FALSE,Misapplied rule (using the wrong formula or method) in Step 1,(5**2) - 2 isthe same as 5 * 5 - 2
