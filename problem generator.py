@@ -1,7 +1,7 @@
 import pandas as pd 
 import random
 
-tries = 20 #int(input("How many problems do you want? "))
+tries = 100 #int(input("How many problems do you want? "))
 
 n = tries - (tries-1)
 
@@ -17,7 +17,7 @@ def generate_random_problem(tries, n):
             n += 1
         else:
             problems.pop()
-            generate_random_problem(tries, n)
+            # just continue, do not call generate_random_problem again
     return problems
 
 wrong_answers = []
@@ -49,7 +49,7 @@ problems = generate_random_problem(tries, n)
 answers = generate_random_answers(problems, wrong_answers, reason, correct)
 df = pd.DataFrame(list(zip(problems, answers, correct, reason)), columns=["Problem", "Answer", "Correct?", "Reason"]) 
 
-print(df)
+df.to_csv('output.csv')
 
 """if len(wrong_answers) > 0 :
     print("\nThe following problems are wrong:") 
