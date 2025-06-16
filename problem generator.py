@@ -1,7 +1,7 @@
 import pandas as pd 
 import random
 
-tries = 5 #int(input("How many problems do you want? "))
+tries = 20 #int(input("How many problems do you want? "))
 
 n = tries - (tries-1)
 
@@ -21,25 +21,40 @@ def generate_random_problem(tries, n):
     return problems
 
 wrong_answers = []
+reason = []
+correct = []
 
-def generate_random_answers(problems, wrong_answers): #generates answers to the problems, reminder: make it so it gives an answer based on a certain probability
+def generate_random_answers(problems, wrong_answers, reason, correct): 
     answers = []
-    wrong_answers = []
-    odds = 0.3 #this is the odds of the machine printing the wrong answer to a problem
+    odds = 0.3
     for item in problems:
-        right_or_wrong = random.sample(list(range(1,100)), 1)[0]  # moved inside the loop
-        if (right_or_wrong / 100) > odds: #if odds are in our favour, give right answer
+        right_or_wrong = random.sample(list(range(1,100)), 1)[0]  
+        if (right_or_wrong / 100) > odds: 
             answers.append(eval(item))
-        else:  #else give wrong answer
-            answers.append("poop") #for now wrong answers can just be identified by "poop", i will fix this
-            #wrong_answers.append(answers.pop())
+            reason.append("None")
+            correct.append(True)
+        else:  
+            wrong_answers.append(item)
+            right_or_wrong = random.sample(list(range(1,100)), 1)[0]  
+            if (right_or_wrong / 100) > odds:
+                answers.append((eval(item)) * (-1))
+                reason.append("Sign misconception")
+            else:
+                answers.append((eval(item)) * 2)
+                reason.append("Random 2 multiplication")
+            correct.append(False)
     return answers
 
-#reminder: make it such that the function signals somehow when an answer is wrong
-
-problems = generate_random_problem(tries, n) #this is how i store the problems generated 
-answers = generate_random_answers(problems, wrong_answers)
-columns = [f"Problem {i+1}" for i in range(len(problems))] #creates the name for every column
-df = pd.DataFrame(list(zip(problems, answers)), columns=["Problem", "Answer"]) #creates the dataframe with each newly generated set of problems
+problems = generate_random_problem(tries, n) 
+answers = generate_random_answers(problems, wrong_answers, reason, correct)
+df = pd.DataFrame(list(zip(problems, answers, correct, reason)), columns=["Problem", "Answer", "Correct?", "Reason"]) 
 
 print(df)
+
+"""if len(wrong_answers) > 0 :
+    print("\nThe following problems are wrong:") 
+    for index, item in enumerate(wrong_answers):
+        print(f"{index}: {item}")
+else:
+    print(f"\nNo wrong answers within these problems")
+print('')"""
