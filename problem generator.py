@@ -23,8 +23,9 @@ def generate_random_problem(tries, n):
 wrong_answers = []
 reason = []
 correct = []
+student_steps = []
 
-def generate_random_answers(problems, wrong_answers, reason, correct): 
+def generate_random_answers(problems, wrong_answers, reason, correct, student_steps): 
     answers = []
     odds = 0.3
     for item in problems:
@@ -40,14 +41,37 @@ def generate_random_answers(problems, wrong_answers, reason, correct):
                 answers.append((eval(item)) * (-1))
                 reason.append("Sign misconception")
             else:
-                answers.append((eval(item)) * 2)
+                answers.append((eval(item)) * 2) #if answer is 0 this wont work fix plz
                 reason.append("Random 2 multiplication")
             correct.append(False)
+    
+    #this part adds student steps to the problem. 
+    #for example if the problem is 3 * 5 - 9 the steps would be: step 1: 3*5, step 2: 15-9
+    for i, prob in enumerate(problems):
+        a, op1, b, op2, c = prob.split()
+        if correct[i]:
+            if op1 in ('*', '/'):  # check if op1 is * or /
+                step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}')}"
+                middle = eval(f'{a} {op1} {b}')
+                step_2 = f"{middle} {op2} {c} = {answers[i]}"
+            elif op1 not in ('*', '/') and op2 in ('*', '/'):  # check op2 for * or /
+                step_1 = f"{b} {op2} {c} = {eval(f'{b} {op2} {c}')}"
+                middle = eval(f'{b} {op2} {c}')
+                step_2 = f"{a} {op1} {middle} = {answers[i]}"
+            elif op1 in ('+', '-'): 
+                step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}')}"
+                middle = eval(f'{a} {op1} {b}')
+                step_2 = f"{middle} {op2} {c} = {answers[i]}"
+        else: #ill figure this out later lol
+            step_1 = "caca"
+            step_2 = "coco"
+        student_steps.append(f"Step 1: {step_1}, Step 2: {step_2}")
     return answers
 
+
 problems = generate_random_problem(tries, n) 
-answers = generate_random_answers(problems, wrong_answers, reason, correct)
-df = pd.DataFrame(list(zip(problems, answers, correct, reason)), columns=["Problem", "Answer", "Correct?", "Reason"]) 
+answers = generate_random_answers(problems, wrong_answers, reason, correct, student_steps)
+df = pd.DataFrame(list(zip(problems, answers, correct, reason, student_steps)), columns=["Problem", "Answer", "Correct?", "Reason", "Student Steps"]) 
 
 #df.to_csv('output.csv')
 
