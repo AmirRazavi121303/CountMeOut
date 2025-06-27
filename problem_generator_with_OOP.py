@@ -25,7 +25,7 @@ class StudentAttempt:
         self.reason = "None" if self.correct else random.choice(["Sign misconception", "Random 2 multiplication", ])
         self.answer = None
         self.steps = None
-        self.wrong_step = "None"
+        self.wrong_step = 0
         self.generate_attempt()
         
     def generate_attempt(self):
@@ -53,13 +53,13 @@ class StudentAttempt:
                     middle = eval(f'{a} {op1} {b}') * -1
                     step_2 = f"{middle} {op2} {c} = {eval(f'{middle}{op2}{c}')}"
                     self.answer = eval(f'{middle}{op2}{c}')
-                    self.wrong_step = "Step 1"
+                    self.wrong_step = 1
                 elif self.reason == "Random 2 multiplication":
                     step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}')}"
                     middle = eval(f'{a} {op1} {b}') 
                     self.answer = middle * 2
                     step_2 = f"{middle} {op2} {c} = {eval(f'{middle}{op2}{c}')}"
-                    self.wrong_step = "Step 2"
+                    self.wrong_step = 2
             self.steps = f"Step 1: {step_1}, Step 2: {step_2}"
         except:
             self.answer = None
@@ -90,5 +90,5 @@ def generate_dataset(n_problems):
         count += 1
     return pd.DataFrame(data)
 
-df = generate_dataset(10000)
+df = generate_dataset(1000000)
 df.to_csv('output_6.csv')
