@@ -91,4 +91,4 @@ def generate_dataset(n_problems):
     return pd.DataFrame(data)
 
 df = generate_dataset(10000)
-df.to_csv('output_5.csv')
+df.to_csv('output_6.csv')
