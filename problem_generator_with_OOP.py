@@ -82,7 +82,7 @@ class StudentAttempt:
                     step_2 = f"{middle} {op2} {c} = {middle}"
                     self.answer = middle
                     self.wrong_step = 1
-            self.steps = f"Step 1: {step_1}, Step 2: {step_2}"
+            self.steps = f"1, {step_1}, 2, {step_2}"
         except:
             self.answer = None
             self.steps = "Error in computation"

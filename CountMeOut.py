@@ -20,7 +20,7 @@ print(df)
 #  [3, 2, 2, 3, 5]
 #  [0, 1, 0, 1, 0]
 
-def enumerate_operators_and_operands(df):
+def enumerate_operators_and_operands(series, max_len=10):
     vocab = {
         "+" : 0,
         "-" : 1,
@@ -29,8 +29,8 @@ def enumerate_operators_and_operands(df):
     }
     values = []
     items = []
-    for problem in df["Problem"]:
-        tokens = problem.strip().split()
+    for expr in series:
+        tokens = expr.strip().split()
         row = []
         nums = []
         for token in tokens:
@@ -43,25 +43,41 @@ def enumerate_operators_and_operands(df):
                     nums.append(1)
                 except ValueError:
                     pass  # skip tokens that are neither operator nor integer
+        
+        # Pad or truncate to max_len
+        if len(row) < max_len:
+            pad_len = max_len - len(row)
+            row.extend([-1] * pad_len)   # pad value -1 (can be changed)
+            nums.extend([-1] * pad_len)
+        else:
+            row = row[:max_len]
+            nums = nums[:max_len]
+        
         values.append(row)
         items.append(nums)
-    return values, items
+    return np.array(values), np.array(items)
+# Usage:
+vec_problems, vec_items = enumerate_operators_and_operands(df["Problem"], max_len=10)
+vec_steps, vec_steps_items = enumerate_operators_and_operands(df["Student Steps"], max_len=10)
 
-vec_problems, vec_items = enumerate_operators_and_operands(df)
-print(vec_problems[0:3], vec_items[0:3])
+df["Reason_filled"] = df["Reason"].fillna("No Error")
 
-X_problem = np.hstack([vec_problems, vec_items, df["Answer"].to_numpy().reshape(-1,1)]) 
-X_steps = df["Wrong Step"] 
-y = df["Correct?"].astype(int) # binary target, add binary target for which step was wrong
+reason_to_code = {reason: idx for idx, reason in enumerate(df["Reason_filled"].unique())}
 
-X_train_prob, X_test_prob, X_train_steps, X_test_steps, y_train, y_test = train_test_split(
-    X_problem, X_steps, y, test_size=0.2, random_state=42, shuffle=True
+X_problem = np.hstack([vec_problems, vec_items, df["Answer"].to_numpy().reshape(-1,1), vec_steps, vec_steps_items, df["Wrong Step"].to_numpy().reshape(-1,1)]) 
+
+y = df["Reason_filled"].map(reason_to_code).astype(int)
+
+X_train_prob, X_test_prob, y_train, y_test = train_test_split(
+    X_problem, y, test_size=0.2, random_state=42, shuffle=True
 )
 
-print(X_train_prob.shape)
-print(X_train_steps.shape)
+"""y_vectorizer = TfidfVectorizer(ngram_range=(1,2), max_features=5000)
 
-"""prob_vectorizer = TfidfVectorizer(ngram_range=(1,2), max_features=5000, token_pattern=r"(?u)\b[\w\*\+\-/=]+\b")
+y_train_vec = y_vectorizer.fit_transform(y_train)
+y_test_vec = y_vectorizer.transform(y_test)
+
+prob_vectorizer = TfidfVectorizer(ngram_range=(1,2), max_features=5000, token_pattern=r"(?u)\b[\w\*\+\-/=]+\b")
 steps_vectorizer = TfidfVectorizer(ngram_range=(1,2), max_features=5000)
 ans_vectorizer = TfidfVectorizer(ngram_range=(1,2), max_features=5000)
 
@@ -82,7 +98,7 @@ y_pred_log = reg_model.predict(X_test_prob)
 print("🪵 Logistic Regression Report:")
 print(classification_report(y_test, y_pred_log))"""
 
-rf_model = RandomForestClassifier(n_estimators=50, n_jobs=1, random_state=42, class_weight={0: 1.4, 1:1.0})
+rf_model = RandomForestClassifier(n_estimators=50, n_jobs=1, random_state=42)
 rf_model.fit(X_train_prob, y_train)
 y_pred_rf = rf_model.predict(X_test_prob)
 print("🌳 Random Forest Report:")
