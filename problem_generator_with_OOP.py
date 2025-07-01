@@ -22,7 +22,17 @@ class StudentAttempt:
     def __init__(self, problem: MathProblem, error_chance = 0.5):
         self.problem = problem
         self.correct = random.randint(1,100) / 100 > error_chance
-        self.reason = "None" if self.correct else random.choice(["Sign misconception", "Random 2 multiplication", ])
+        self.reason = "None" 
+        if self.correct:
+            pass
+        else:
+            possible_reasons = ["Sign misconception", "Operation order flip", "Zero misconception", "Random 2 multiplication"]
+            if self.problem.op1 in ("-"):
+                self.reason = "Operation order flip"
+            elif self.problem.op2 in ("*", "/") and self.problem.c == 0: #this doesnt work
+                self.reason = random.choice(["Sign misconception", "Zero misconception"])
+            else:
+                self.reason = random.choice(["Sign misconception", "Random 2 multiplication"])
         self.answer = None
         self.steps = None
         self.wrong_step = 0
@@ -49,17 +59,29 @@ class StudentAttempt:
                 self.answer = eval(self.problem.problem_str)
             else: # to add more errors you have to edit under this block
                 if self.reason == "Sign misconception":
-                    step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}') * -1}"
-                    middle = eval(f'{a} {op1} {b}') * -1
-                    step_2 = f"{middle} {op2} {c} = {eval(f'{middle}{op2}{c}')}"
-                    self.answer = eval(f'{middle}{op2}{c}')
-                    self.wrong_step = 1
+                    step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}')}"
+                    middle = eval(f'{a} {op1} {b}') 
+                    step_2 = f"{middle} {op2} {c} = {eval(f'{middle}{op2}{c}') * -1}"
+                    self.answer = eval(f'{middle}{op2}{c}') * -1
+                    self.wrong_step = 2
                 elif self.reason == "Random 2 multiplication":
                     step_1 = f"{a} {op1} {b} = {eval(f'{a} {op1} {b}')}"
                     middle = eval(f'{a} {op1} {b}') 
                     self.answer = middle * 2
                     step_2 = f"{middle} {op2} {c} = {eval(f'{middle}{op2}{c}')}"
                     self.wrong_step = 2
+                elif self.reason == "Operation order flip":
+                    step_1 = f"{b} {op1} {a} = {eval(f'{b} {op1} {a}')}"
+                    middle = eval(f'{b} {op1} {a}')
+                    step_2 = f"{middle} {op2} {c} = {eval(f'{middle} {op2} {c}')}"
+                    self.answer = eval(f'{middle} {op2} {c}')
+                    self.wrong_step = 1
+                elif self.reason == "Zero misconception":
+                    step_1 = f"{a} {op1} {b} = {eval(f'{b} {op1} {a}')}"
+                    middle = eval(f'{b} {op1} {a}')
+                    step_2 = f"{middle} {op2} {c} = {middle}"
+                    self.answer = middle
+                    self.wrong_step = 1
             self.steps = f"Step 1: {step_1}, Step 2: {step_2}"
         except:
             self.answer = None
@@ -90,5 +112,5 @@ def generate_dataset(n_problems):
         count += 1
     return pd.DataFrame(data)
 
-df = generate_dataset(10000)
+df = generate_dataset(1000000)
 df.to_csv('output_6.csv')
